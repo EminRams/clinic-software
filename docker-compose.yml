@@ -1,0 +1,46 @@
+# ============================================================
+# LOCAL DEVELOPMENT - docker compose up
+# Runs the API with hot-reload + a local Postgres so you don't
+# need to touch Neon at all while coding day to day.
+# ============================================================
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev   # dev-only Dockerfile with hot reload (see below)
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://clinic_user:clinic_pass@db:5432/clinic_db
+    volumes:
+      - ./:/app          # mount source so changes reflect instantly
+      - /app/node_modules # keep container's node_modules, don't overwrite from host
+    depends_on:
+      db:
+        condition: service_healthy
+    command: npm run start:dev
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: clinic_user
+      POSTGRES_PASSWORD: clinic_pass
+      POSTGRES_DB: clinic_db
+    ports:
+      - "5432:5432"       # exposed so you can inspect with a GUI client if needed
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./clinic_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      # ^ auto-runs the schema file the first time the container is created
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clinic_user -d clinic_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
