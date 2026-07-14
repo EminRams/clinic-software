@@ -39,6 +39,12 @@ export class Users {
   @Column("character varying", { name: "password_hash", length: 255 })
   passwordHash: string;
 
+  @Column("uuid", { name: "clinic_id" })
+  clinicId: string;
+
+  @Column("uuid", { name: "doctor_id", nullable: true })
+  doctorId: string | null;
+
   @Column("timestamp with time zone", {
     name: "created_at",
     default: () => "now()",

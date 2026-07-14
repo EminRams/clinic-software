@@ -9,7 +9,7 @@ export const databaseProviders = [
             const dataSource = new DataSource({
                 type: 'postgres',
                 url: process.env.DATABASE_URL,
-                entities: [],
+                entities: [__dirname + '/entities/*{.ts,.js}'],
                 synchronize: false,
             });
             return dataSource.initialize();

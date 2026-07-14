@@ -1,9 +1,19 @@
-
 import { Module } from '@nestjs/common';
-import { databaseProviders } from './database.providers';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
-    providers: [...databaseProviders],
-    exports: [...databaseProviders],
+  imports: [
+    TypeOrmModule.forRootAsync({
+      useFactory: async () => {
+        return {
+          type: 'postgres',
+          url: process.env.DATABASE_URL,
+          entities: [__dirname + '/entities/*{.ts,.js}'],
+          synchronize: false,
+          logging: ['error', 'warn'],
+        };
+      },
+    }),
+  ],
 })
-export class DatabaseModule { }
+export class DatabaseModule {}
