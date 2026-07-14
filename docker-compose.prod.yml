@@ -8,7 +8,7 @@ version: "3.9"
 
 services:
   api:
-    image: ghcr.io/YOUR_GITHUB_USER/clinic-software:latest
+    image: ghcr.io/EminRams/clinic-software:latest
     restart: unless-stopped
     # NOTE: no "ports:" mapping here on purpose. cloudflared reaches
     # this container over the internal Docker network (service name "api"),
@@ -46,7 +46,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U clinic_user -d clinic_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -57,7 +57,7 @@ services:
   # Nightly backup: dumps the database, keeps 30 days locally,
   # AND pushes a copy off-server to Cloudflare R2 (S3-compatible API).
   backup:
-    build: ./backup
+    image: ghcr.io/EminRams/clinic-software-backup:latest
     restart: unless-stopped
     depends_on:
       - db
