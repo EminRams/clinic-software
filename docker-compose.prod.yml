@@ -8,7 +8,7 @@ version: "3.9"
 
 services:
   api:
-    image: ghcr.io/EminRams/clinic-software:latest
+    image: ghcr.io/eminrams/clinic-software:latest
     restart: unless-stopped
     # NOTE: no "ports:" mapping here on purpose. cloudflared reaches
     # this container over the internal Docker network (service name "api"),
@@ -57,7 +57,7 @@ services:
   # Nightly backup: dumps the database, keeps 30 days locally,
   # AND pushes a copy off-server to Cloudflare R2 (S3-compatible API).
   backup:
-    image: ghcr.io/EminRams/clinic-software-backup:latest
+    image: ghcr.io/eminrams/clinic-software-backup:latest
     restart: unless-stopped
     depends_on:
       - db
