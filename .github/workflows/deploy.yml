@@ -60,18 +60,29 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to VPS
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
         env:
           SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-          VPS_USER: ${{ secrets.VPS_USER }}
-          GHCR_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
         run: |
           mkdir -p ~/.ssh
           echo "$SSH_KEY" | base64 -d > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          echo "Key first line: $(head -1 ~/.ssh/deploy_key)"
-          echo "Key last line: $(tail -1 ~/.ssh/deploy_key)"
-          echo "Key lines: $(wc -l < ~/.ssh/deploy_key)"
-          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Copy docker-compose.prod.yml to VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no docker-compose.prod.yml "${VPS_USER}@${VPS_HOST}:/opt/clinic-software/docker-compose.prod.yml"
+
+      - name: Deploy to VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          GHCR_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
+        run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no "${VPS_USER}@${VPS_HOST}" "echo $GHCR_TOKEN | docker login ghcr.io -u eminrams --password-stdin && cd /opt/clinic-software && docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d && docker image prune -f"
