@@ -79,7 +79,7 @@ jobs:
         run: |
           scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no docker-compose.prod.yml "${VPS_USER}@${VPS_HOST}:/opt/clinic-software/docker-compose.prod.yml"
 
-      - name: Create .env.production on VPS
+      - name: Create .env on VPS
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
@@ -96,7 +96,7 @@ jobs:
           R2_ENDPOINT: ${{ vars.R2_ENDPOINT }}
           R2_BUCKET: ${{ vars.R2_BUCKET }}
         run: |
-          cat > .env.production << EOF
+          cat > .env << EOF
           POSTGRES_USER=${POSTGRES_USER}
           POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
           POSTGRES_DB=${POSTGRES_DB}
@@ -105,16 +105,16 @@ jobs:
           JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
           ADMIN_EMAIL=${ADMIN_EMAIL}
           ADMIN_PASSWORD=${ADMIN_PASSWORD}
-          CLOUDFLARE_TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+          PORT=3000
+          NODE_ENV=production
+          TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
           R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}
           R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}
           R2_ENDPOINT=${R2_ENDPOINT}
           R2_BUCKET=${R2_BUCKET}
-          PORT=3000
-          NODE_ENV=production
           EOF
-          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no .env.production "${VPS_USER}@${VPS_HOST}:/opt/clinic-software/.env.production"
-          rm .env.production
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no .env "${VPS_USER}@${VPS_HOST}:/opt/clinic-software/.env"
+          rm .env
 
       - name: Deploy to VPS
         env:
