@@ -83,35 +83,9 @@ jobs:
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
-          POSTGRES_USER: ${{ vars.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ vars.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ vars.POSTGRES_DB }}
-          JWT_SECRET: ${{ vars.JWT_SECRET }}
-          JWT_EXPIRES_IN: ${{ vars.JWT_EXPIRES_IN }}
-          ADMIN_EMAIL: ${{ vars.ADMIN_EMAIL }}
-          ADMIN_PASSWORD: ${{ vars.ADMIN_PASSWORD }}
-          CLOUDFLARE_TUNNEL_TOKEN: ${{ vars.CLOUDFLARE_TUNNEL_TOKEN }}
-          R2_ACCESS_KEY_ID: ${{ vars.R2_ACCESS_KEY_ID }}
-          R2_SECRET_ACCESS_KEY: ${{ vars.R2_SECRET_ACCESS_KEY }}
-          R2_ENDPOINT: ${{ vars.R2_ENDPOINT }}
-          R2_BUCKET: ${{ vars.R2_BUCKET }}
+          PRODUCTION_ENV: ${{ secrets.PRODUCTION_ENV }}
         run: |
-          printf '%s\n' \
-            "POSTGRES_USER=${POSTGRES_USER}" \
-            "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" \
-            "POSTGRES_DB=${POSTGRES_DB}" \
-            "DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}" \
-            "JWT_SECRET=${JWT_SECRET}" \
-            "JWT_EXPIRES_IN=${JWT_EXPIRES_IN}" \
-            "ADMIN_EMAIL=${ADMIN_EMAIL}" \
-            "ADMIN_PASSWORD=${ADMIN_PASSWORD}" \
-            "PORT=3000" \
-            "NODE_ENV=production" \
-            "TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}" \
-            "R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}" \
-            "R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}" \
-            "R2_ENDPOINT=${R2_ENDPOINT}" \
-            "R2_BUCKET=${R2_BUCKET}" > .env
+          echo "$PRODUCTION_ENV" > .env
           scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no .env "${VPS_USER}@${VPS_HOST}:/opt/clinic-software/.env"
           rm .env
 
@@ -121,4 +95,21 @@ jobs:
           VPS_USER: ${{ secrets.VPS_USER }}
           GHCR_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
         run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no "${VPS_USER}@${VPS_HOST}" "echo $GHCR_TOKEN | docker login ghcr.io -u eminrams --password-stdin && cd /opt/clinic-software && docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d && docker image prune -f"
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no "${VPS_USER}@${VPS_HOST}" << 'DEPLOY_EOF'
+            echo "=== Validating deployment directory and .env ==="
+            if [ -f /opt/clinic-software/.env ]; then
+              echo ".env file successfully configured on VPS."
+            else
+              echo "ERROR: .env file is missing on VPS!"
+              exit 1
+            fi
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u eminrams --password-stdin
+            cd /opt/clinic-software
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d
+            sleep 5
+            echo "=== Service Status ==="
+            docker compose -f docker-compose.prod.yml ps
+            echo "=== Container logs ==="
+            docker compose -f docker-compose.prod.yml logs api --tail=50
+          DEPLOY_EOF
