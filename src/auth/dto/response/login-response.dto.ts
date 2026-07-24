@@ -35,7 +35,7 @@ export class UserResponseDto {
 
 export class LoginResponseDto {
   @Expose()
-  access_token: string;
+  token: string;
 
   @Expose()
   user: UserResponseDto;

@@ -1,8 +1,7 @@
-import { Controller, Post, Body, Res, Header } from '@nestjs/common';
-import type { Response } from 'express';
+import { Controller, Post, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginRequestDto } from './dto/request/login-request.dto';
-import { UserResponseDto } from './dto/response/login-response.dto';
+import { LoginResponseDto } from './dto/response/login-response.dto';
 import { DynamicResponseMessage } from '../common/dto/dynamic-response.dto';
 
 @Controller('auth')
@@ -12,10 +11,7 @@ export class AuthController {
   @Post('login')
   async login(
     @Body() loginDto: LoginRequestDto,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<DynamicResponseMessage<UserResponseDto>> {
-    const { response, token } = await this.authService.login(loginDto);
-    res.setHeader('Authorization', `Bearer ${token}`);
-    return response;
+  ): Promise<DynamicResponseMessage<LoginResponseDto>> {
+    return this.authService.login(loginDto);
   }
 }

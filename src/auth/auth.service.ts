@@ -6,8 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
 import { Users } from '../database/entities/Users';
 import { LoginRequestDto } from './dto/request/login-request.dto';
-import { UserResponseDto } from './dto/response/login-response.dto';
-import { DynamicResponseMessage } from '../common/dto/dynamic-response.dto';
+import { LoginResponseDto, UserResponseDto } from './dto/response/login-response.dto';
 import { ResponseHelper } from '../common/helpers/response.helper';
 
 @Injectable()
@@ -35,9 +34,7 @@ export class AuthService {
     return user;
   }
 
-  async login(
-    loginDto: LoginRequestDto,
-  ): Promise<{ response: DynamicResponseMessage<UserResponseDto>; token: string }> {
+  async login(loginDto: LoginRequestDto) {
     const user = await this.validateUser(loginDto.email, loginDto.password);
 
     const payload = {
@@ -52,9 +49,11 @@ export class AuthService {
       excludeExtraneousValues: true,
     });
 
-    return {
-      response: ResponseHelper.success(userResponse, 'Inicio de sesión exitoso'),
+    const loginData = plainToInstance(LoginResponseDto, {
       token,
-    };
+      user: userResponse,
+    });
+
+    return ResponseHelper.success(loginData, 'Inicio de sesión exitoso');
   }
 }
