@@ -5,56 +5,56 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-} from "typeorm";
-import { Appointments } from "./Appointments";
-import { Charges } from "./Charges";
-import { ClinicalNotes } from "./ClinicalNotes";
-import { Clinics } from "./Clinics";
-import { Doctors } from "./Doctors";
-import { Invoices } from "./Invoices";
-import { Patients } from "./Patients";
-import { Permissions } from "./Permissions";
-import { Prescriptions } from "./Prescriptions";
-import { RolePermissions } from "./RolePermissions";
-import { Roles } from "./Roles";
-import { UserRoles } from "./UserRoles";
+} from 'typeorm';
+import { Appointments } from './Appointments';
+import { Charges } from './Charges';
+import { ClinicalNotes } from './ClinicalNotes';
+import { Clinics } from './Clinics';
+import { Doctors } from './Doctors';
+import { Invoices } from './Invoices';
+import { Patients } from './Patients';
+import { Permissions } from './Permissions';
+import { Prescriptions } from './Prescriptions';
+import { RolePermissions } from './RolePermissions';
+import { Roles } from './Roles';
+import { UserRoles } from './UserRoles';
 
-@Index("users_email_key", ["email"], { unique: true })
-@Index("users_pkey", ["id"], { unique: true })
-@Entity("users", { schema: "public" })
+@Index('users_email_key', ['email'], { unique: true })
+@Index('users_pkey', ['id'], { unique: true })
+@Entity('users', { schema: 'public' })
 export class Users {
-  @Column("uuid", {
+  @Column('uuid', {
     primary: true,
-    name: "id",
-    default: () => "uuid_generate_v4()",
+    name: 'id',
+    default: () => 'uuid_generate_v4()',
   })
   id: string;
 
-  @Column("character varying", { name: "full_name", length: 150 })
+  @Column('character varying', { name: 'full_name', length: 150 })
   fullName: string;
 
-  @Column("character varying", { name: "email", unique: true, length: 150 })
+  @Column('character varying', { name: 'email', unique: true, length: 150 })
   email: string;
 
-  @Column("character varying", { name: "password_hash", length: 255 })
+  @Column('character varying', { name: 'password_hash', length: 255 })
   passwordHash: string;
 
-  @Column("uuid", { name: "clinic_id" })
+  @Column('uuid', { name: 'clinic_id' })
   clinicId: string;
 
-  @Column("uuid", { name: "doctor_id", nullable: true })
+  @Column('uuid', { name: 'doctor_id', nullable: true })
   doctorId: string | null;
 
-  @Column("timestamp with time zone", {
-    name: "created_at",
-    default: () => "now()",
+  @Column('timestamp with time zone', {
+    name: 'created_at',
+    default: () => 'now()',
   })
   createdAt: Date;
 
-  @Column("timestamp with time zone", { name: "updated_at", nullable: true })
+  @Column('timestamp with time zone', { name: 'updated_at', nullable: true })
   updatedAt: Date | null;
 
-  @Column("boolean", { name: "status", default: () => "true" })
+  @Column('boolean', { name: 'status', default: () => 'true' })
   status: boolean;
 
   @OneToMany(() => Appointments, (appointments) => appointments.createdBy)
@@ -116,13 +116,13 @@ export class Users {
 
   @OneToMany(
     () => RolePermissions,
-    (rolePermissions) => rolePermissions.createdBy
+    (rolePermissions) => rolePermissions.createdBy,
   )
   rolePermissions: RolePermissions[];
 
   @OneToMany(
     () => RolePermissions,
-    (rolePermissions) => rolePermissions.updatedBy
+    (rolePermissions) => rolePermissions.updatedBy,
   )
   rolePermissions2: RolePermissions[];
 
@@ -141,23 +141,23 @@ export class Users {
   @OneToMany(() => UserRoles, (userRoles) => userRoles.user)
   userRoles3: UserRoles[];
 
-  @ManyToOne(() => Clinics, (clinics) => clinics.users, { onDelete: "CASCADE" })
-  @JoinColumn([{ name: "clinic_id", referencedColumnName: "id" }])
+  @ManyToOne(() => Clinics, (clinics) => clinics.users, { onDelete: 'CASCADE' })
+  @JoinColumn([{ name: 'clinic_id', referencedColumnName: 'id' }])
   clinic: Clinics;
 
   @ManyToOne(() => Users, (users) => users.users)
-  @JoinColumn([{ name: "created_by", referencedColumnName: "id" }])
+  @JoinColumn([{ name: 'created_by', referencedColumnName: 'id' }])
   createdBy: Users;
 
   @OneToMany(() => Users, (users) => users.createdBy)
   users: Users[];
 
   @ManyToOne(() => Doctors, (doctors) => doctors.users)
-  @JoinColumn([{ name: "doctor_id", referencedColumnName: "id" }])
+  @JoinColumn([{ name: 'doctor_id', referencedColumnName: 'id' }])
   doctor: Doctors;
 
   @ManyToOne(() => Users, (users) => users.users2)
-  @JoinColumn([{ name: "updated_by", referencedColumnName: "id" }])
+  @JoinColumn([{ name: 'updated_by', referencedColumnName: 'id' }])
   updatedBy: Users;
 
   @OneToMany(() => Users, (users) => users.updatedBy)

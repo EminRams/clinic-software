@@ -25,7 +25,9 @@ export class AdminSeedService implements OnModuleInit {
     const password = process.env.ADMIN_PASSWORD;
 
     if (!email || !password) {
-      this.logger.warn('ADMIN_EMAIL or ADMIN_PASSWORD not set, skipping admin seed');
+      this.logger.warn(
+        'ADMIN_EMAIL or ADMIN_PASSWORD not set, skipping admin seed',
+      );
       return;
     }
 
@@ -35,7 +37,9 @@ export class AdminSeedService implements OnModuleInit {
       return;
     }
 
-    let clinic = await this.clinicsRepository.findOne({ where: { status: true } });
+    let clinic = await this.clinicsRepository.findOne({
+      where: { status: true },
+    });
     if (!clinic) {
       clinic = this.clinicsRepository.create({
         name: 'Default Clinic',

@@ -77,6 +77,16 @@ dto/
 - `JWT_SECRET` must be set before starting the app (server-side only, never exposed to client)
 - Admin seed auto-runs on startup: creates `ADMIN_EMAIL` user with `ADMIN_PASSWORD`
 
+## Rate Limiting
+
+- `@nestjs/throttler` v6 with in-memory storage (default)
+- Global: 60 requests per IP per 60s window (configurable via `THROTTLE_TTL` / `THROTTLE_LIMIT`)
+- Login (`POST /auth/login`): 5 requests per 60s window, blocked for 15 minutes after exceeding
+- `ThrottlerGuard` registered as `APP_GUARD` in `app.module.ts` — applies to all routes
+- Use `@SkipThrottle()` on endpoints that should be exempt
+- Use `@Throttle({ default: { limit, ttl } })` to override global defaults per endpoint
+- `trust proxy` enabled in `main.ts` for correct client IP behind nginx/Docker
+
 ## Anti-Patterns to Avoid
 
 - **Never use `synchronize: true`** — schema is managed by `clinic_schema.sql`

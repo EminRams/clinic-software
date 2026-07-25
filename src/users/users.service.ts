@@ -21,7 +21,9 @@ export class UsersService {
     private readonly usersRepository: Repository<Users>,
   ) {}
 
-  async findAll(clinicId?: string): Promise<DynamicResponseMessage<UserResponseDto[]>> {
+  async findAll(
+    clinicId?: string,
+  ): Promise<DynamicResponseMessage<UserResponseDto[]>> {
     const where = clinicId ? { clinicId } : {};
     const users = await this.usersRepository.find({
       where,

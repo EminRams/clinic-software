@@ -14,7 +14,12 @@ export class ResponseHelper {
     data: T,
     message: string = 'Recurso creado exitosamente',
   ): DynamicResponseMessage<T> {
-    return new DynamicResponseMessage<T>(true, ApiResponseCode.CREATED, message, data);
+    return new DynamicResponseMessage<T>(
+      true,
+      ApiResponseCode.CREATED,
+      message,
+      data,
+    );
   }
 
   static error(
@@ -22,26 +27,44 @@ export class ResponseHelper {
     message: string,
     errors: string[] = [],
   ): DynamicResponseMessage<null> {
-    return new DynamicResponseMessage<null>(false, statusCode, message, null, errors);
+    return new DynamicResponseMessage<null>(
+      false,
+      statusCode,
+      message,
+      null,
+      errors,
+    );
   }
 
-  static badRequest(message: string, errors: string[] = []): DynamicResponseMessage<null> {
+  static badRequest(
+    message: string,
+    errors: string[] = [],
+  ): DynamicResponseMessage<null> {
     return this.error(ApiResponseCode.BAD_REQUEST, message, errors);
   }
 
-  static unauthorized(message: string = 'No autorizado'): DynamicResponseMessage<null> {
+  static unauthorized(
+    message: string = 'No autorizado',
+  ): DynamicResponseMessage<null> {
     return this.error(ApiResponseCode.UNAUTHORIZED, message);
   }
 
-  static notFound(message: string = 'Recurso no encontrado'): DynamicResponseMessage<null> {
+  static notFound(
+    message: string = 'Recurso no encontrado',
+  ): DynamicResponseMessage<null> {
     return this.error(ApiResponseCode.NOT_FOUND, message);
   }
 
-  static conflict(message: string, errors: string[] = []): DynamicResponseMessage<null> {
+  static conflict(
+    message: string,
+    errors: string[] = [],
+  ): DynamicResponseMessage<null> {
     return this.error(ApiResponseCode.CONFLICT, message, errors);
   }
 
-  static internalError(message: string = 'Error interno del servidor'): DynamicResponseMessage<null> {
+  static internalError(
+    message: string = 'Error interno del servidor',
+  ): DynamicResponseMessage<null> {
     return this.error(ApiResponseCode.INTERNAL_ERROR, message);
   }
 }

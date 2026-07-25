@@ -27,7 +27,9 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<DynamicResponseMessage<UserResponseDto>> {
+  findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<DynamicResponseMessage<UserResponseDto>> {
     return this.usersService.findOne(id);
   }
 
@@ -47,7 +49,9 @@ export class UsersController {
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string): Promise<DynamicResponseMessage<null>> {
+  remove(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<DynamicResponseMessage<null>> {
     return this.usersService.remove(id);
   }
 }
